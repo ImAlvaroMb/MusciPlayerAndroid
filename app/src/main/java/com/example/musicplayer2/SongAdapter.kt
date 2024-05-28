@@ -1,12 +1,14 @@
 package com.example.musicplayer2
 
 import android.media.MediaPlayer
+import android.view.animation.AnimationUtils
 import android.content.Context
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.SeekBar
 
@@ -23,25 +25,32 @@ class SongAdapter(private val context: Context, private val songList: List<Song>
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val song = songList[position]
         holder.textViewTitle.text = song.title
-
-        holder.buttonPlay.setOnClickListener{
+        holder.buttonPlay.setOnClickListener {
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer.create(context, song.audioResourceId)
             mediaPlayer?.start()
+            holder.buttonPlay.startAnimation(AnimationUtils.loadAnimation(context, R.anim.music_anim))
+            holder.music.startAnimation(AnimationUtils.loadAnimation(context, R.anim.music_anim))
+
         }
 
-        holder.buttonPause.setOnClickListener{
+        holder.buttonPause.setOnClickListener {
             mediaPlayer?.pause()
+            holder.buttonPlay.clearAnimation()
+            holder.music.clearAnimation()// Detener la animación al pausar la canción
         }
 
-        holder.buttonStop.setOnClickListener{
+        holder.buttonStop.setOnClickListener {
             mediaPlayer?.stop()
             mediaPlayer?.release()
             mediaPlayer = null
+            holder.buttonPlay.clearAnimation()
+            holder.music.clearAnimation()// Detener la animación al detener la canción
         }
 
         holder.volumeSeekBar.progress = 100
-        holder.volumeSeekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+
+        holder.volumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 mediaPlayer?.setVolume(progress / 100f, progress / 100f)
             }
@@ -62,6 +71,7 @@ class SongAdapter(private val context: Context, private val songList: List<Song>
         val buttonPause: Button = itemView.findViewById(R.id.button_pause)
         val buttonStop: Button = itemView.findViewById(R.id.button_stop)
         val volumeSeekBar: SeekBar = itemView.findViewById(R.id.volume_slider)
+        val music: ImageView = itemView.findViewById(R.id.image)
     }
 
     interface OnVolumeChangeListener {
